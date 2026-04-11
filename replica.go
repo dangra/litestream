@@ -583,6 +583,11 @@ func (r *Replica) Restore(ctx context.Context, opt RestoreOptions) (err error) {
 			}
 
 			r.Logger().Info("resuming follow mode from crash recovery", "txid", txid, "output", opt.OutputPath)
+			if opt.OnRestored != nil {
+				if err := opt.OnRestored(); err != nil {
+					return fmt.Errorf("on restored: %w", err)
+				}
+			}
 			return r.follow(ctx, opt.OutputPath, txid, opt.FollowInterval)
 		}
 	}
@@ -717,6 +722,11 @@ func (r *Replica) Restore(ctx context.Context, opt RestoreOptions) (err error) {
 		maxTXID := infos[len(infos)-1].MaxTXID
 		if err := WriteTXIDFile(opt.OutputPath, maxTXID); err != nil {
 			return fmt.Errorf("write initial txid file: %w", err)
+		}
+		if opt.OnRestored != nil {
+			if err := opt.OnRestored(); err != nil {
+				return fmt.Errorf("on restored: %w", err)
+			}
 		}
 		return r.follow(ctx, opt.OutputPath, maxTXID, opt.FollowInterval)
 	}

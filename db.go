@@ -2441,6 +2441,10 @@ type RestoreOptions struct {
 	// FollowInterval specifies how often to poll for new LTX files in follow mode.
 	FollowInterval time.Duration
 
+	// OnRestored runs once before entering follow mode. It is called for both
+	// full restore and crash-recovery resume paths.
+	OnRestored func() error
+
 	// IntegrityCheck specifies the level of integrity checking after restore.
 	// Zero value (IntegrityCheckNone) skips the check for backward compatibility.
 	IntegrityCheck IntegrityCheckMode
